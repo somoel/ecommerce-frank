@@ -77,6 +77,18 @@ public class InventarioUseCase {
         return inventarioGateway.guardar(inventario);
     }
 
+    public Inventario actualizarInventario(String productoId, String nombreProducto, Integer stockMinimo) {
+        Inventario inventario = buscarPorProductoId(productoId);
+        if (nombreProducto != null && !nombreProducto.isBlank()) {
+            inventario.setNombreProducto(nombreProducto);
+        }
+        if (stockMinimo != null && stockMinimo >= 0) {
+            inventario.setStockMinimo(stockMinimo);
+        }
+        inventario.setAlertaStockBajo(inventario.getStockActual() <= inventario.getStockMinimo());
+        return inventarioGateway.guardar(inventario);
+    }
+
     public void eliminarProducto(String productoId) {
         if (inventarioGateway.buscarPorProductoId(productoId) == null) {
             throw new ProductoInventarioNoEncontradoException("Producto no encontrado en inventario: " + productoId);

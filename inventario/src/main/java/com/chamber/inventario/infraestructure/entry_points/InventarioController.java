@@ -2,6 +2,7 @@ package com.chamber.inventario.infraestructure.entry_points;
 
 import com.chamber.inventario.domain.model.Inventario;
 import com.chamber.inventario.domain.model.usecase.InventarioUseCase;
+import com.chamber.inventario.infraestructure.entry_points.dto.ActualizarInventarioRequest;
 import com.chamber.inventario.infraestructure.entry_points.dto.ActualizarStockRequest;
 import com.chamber.inventario.infraestructure.entry_points.dto.InventarioRequest;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,19 @@ public class InventarioController {
             @PathVariable String productoId,
             @RequestBody ActualizarStockRequest request) {
         return new ResponseEntity<>(inventarioUseCase.reducirStock(productoId, request.getCantidad()), HttpStatus.OK);
+    }
+
+    @PutMapping("/{productoId}")
+    public ResponseEntity<?> actualizarInventario(
+            @PathVariable String productoId,
+            @RequestBody ActualizarInventarioRequest request) {
+        try {
+            Inventario actualizado = inventarioUseCase.actualizarInventario(
+                    productoId, request.getNombreProducto(), request.getStockMinimo());
+            return new ResponseEntity<>(actualizado, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/{productoId}")

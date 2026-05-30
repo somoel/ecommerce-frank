@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import {
     Box, Typography, Paper, TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    IconButton, Tooltip, InputAdornment, CircularProgress, Alert, Stack, Chip,
+    IconButton, Tooltip, InputAdornment, CircularProgress, Alert, Stack, Chip, Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
-import { getAllInventario, getAlertas, registrarInventario, aumentarStock, reducirStock, deleteInventario } from '../api/inventario';
+import { getAllInventario, getAlertas, registrarInventario, updateInventario, aumentarStock, reducirStock, deleteInventario } from '../api/inventario';
 
 function useInventario() {
     const [items, setItems] = useState([]);
@@ -35,6 +36,10 @@ export default function Inventario() {
     const { items, alertas, loading, error, setError, setItems } = useInventario();
     const [form, setForm] = useState({ productoId: '', nombreProducto: '', stockActual: '', stockMinimo: '' });
     const [stockForm, setStockForm] = useState({ productoId: '', cantidad: '' });
+
+    const [editOpen, setEditOpen] = useState(false);
+    const [editForm, setEditForm] = useState({ nombreProducto: '', stockMinimo: '' });
+    const [editProductoId, setEditProductoId] = useState('');
 
     const reload = async () => {
         try {
@@ -81,6 +86,26 @@ export default function Inventario() {
             reload();
         } catch (err) {
             setError(err.response?.data?.message || 'Error al eliminar');
+        }
+    };
+
+    const openEdit = (item) => {
+        setEditProductoId(item.productoId);
+        setEditForm({ nombreProducto: item.nombreProducto, stockMinimo: item.stockMinimo });
+        setEditOpen(true);
+    };
+
+    const handleEdit = async () => {
+        setError('');
+        try {
+            await updateInventario(editProductoId, {
+                nombreProducto: editForm.nombreProducto,
+                stockMinimo: parseInt(editForm.stockMinimo),
+            });
+            setEditOpen(false);
+            reload();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error al actualizar');
         }
     };
 
@@ -160,9 +185,14 @@ export default function Inventario() {
                                         </TableCell>
                                         <TableCell>{item.stockMinimo}</TableCell>
                                         <TableCell align="center">
-                                            <Tooltip title="Eliminar">
-                                                <IconButton color="error" onClick={() => handleDelete(item.productoId)}><DeleteIcon /></IconButton>
-                                            </Tooltip>
+                                            <Stack direction="row" spacing={0.5} justifyContent="center">
+                                                <Tooltip title="Editar">
+                                                    <IconButton color="primary" onClick={() => openEdit(item)}><EditIcon /></IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Eliminar">
+                                                    <IconButton color="error" onClick={() => handleDelete(item.productoId)}><DeleteIcon /></IconButton>
+                                                </Tooltip>
+                                            </Stack>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -171,6 +201,18 @@ export default function Inventario() {
                     </TableContainer>
                 )}
             </Paper>
+
+            <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Editar Inventario</DialogTitle>
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+                    <TextField label="Nombre del Producto" value={editForm.nombreProducto} onChange={(e) => setEditForm({ ...editForm, nombreProducto: e.target.value })} fullWidth size="small" />
+                    <TextField label="Stock Mínimo" type="number" value={editForm.stockMinimo} onChange={(e) => setEditForm({ ...editForm, stockMinimo: e.target.value })} fullWidth size="small" />
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={() => setEditOpen(false)} sx={{ borderRadius: 3 }}>Cancelar</Button>
+                    <Button variant="contained" onClick={handleEdit} sx={{ borderRadius: 3 }}>Guardar</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

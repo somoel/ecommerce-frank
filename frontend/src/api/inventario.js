@@ -6,6 +6,7 @@ export const registrarInventario = (inventario) => api.post('/api/ecommerce/inve
 export const getInventario = (productoId) => api.get(`/api/ecommerce/inventario/${productoId}`);
 export const getAllInventario = () => api.get('/api/ecommerce/inventario/all');
 export const getAlertas = () => api.get('/api/ecommerce/inventario/alertas');
+export const updateInventario = (productoId, data) => api.put(`/api/ecommerce/inventario/${productoId}`, data);
 export const aumentarStock = (productoId, cantidad) => api.patch(`/api/ecommerce/inventario/${productoId}/aumentar`, { cantidad });
 export const reducirStock = (productoId, cantidad) => api.patch(`/api/ecommerce/inventario/${productoId}/reducir`, { cantidad });
 export const deleteInventario = (productoId) => api.delete(`/api/ecommerce/inventario/${productoId}`);

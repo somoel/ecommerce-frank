@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface InventarioGateway {
     Inventario guardar(Inventario inventario);
+    Inventario actualizar(String productoId, Inventario inventario);
     Inventario buscarPorProductoId(String productoId);
     List<Inventario> listarTodos();
     List<Inventario> listarConAlertaStockBajo();

@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import {
     Box, Typography, Paper, TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    IconButton, Tooltip, InputAdornment, CircularProgress, Alert, Stack,
+    IconButton, Tooltip, InputAdornment, CircularProgress, Alert, Stack, Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import { createProducto, getAllProductos, getProducto, deleteProducto } from '../api/catalogo';
+import { createProducto, getAllProductos, getProducto, updateProducto, deleteProducto } from '../api/catalogo';
 
 function useProductos(searchId) {
     const [productos, setProductos] = useState([]);
@@ -33,6 +34,10 @@ export default function Productos() {
     const [form, setForm] = useState({ id: '', nombre: '', descripcion: '', precio: '', stock: '' });
     const [searchId, setSearchId] = useState('');
     const { productos, loading, error, setError, setProductos } = useProductos(searchId);
+
+    const [editOpen, setEditOpen] = useState(false);
+    const [editForm, setEditForm] = useState({ nombre: '', descripcion: '', precio: '' });
+    const [editId, setEditId] = useState('');
 
     const reload = async () => {
         try {
@@ -66,6 +71,27 @@ export default function Productos() {
             reload();
         } catch (err) {
             setError(err.response?.data?.message || 'Error al eliminar');
+        }
+    };
+
+    const openEdit = (producto) => {
+        setEditId(producto.id);
+        setEditForm({ nombre: producto.nombre, descripcion: producto.descripcion || '', precio: producto.precio });
+        setEditOpen(true);
+    };
+
+    const handleEdit = async () => {
+        setError('');
+        try {
+            await updateProducto(editId, {
+                nombre: editForm.nombre,
+                descripcion: editForm.descripcion,
+                precio: parseFloat(editForm.precio),
+            });
+            setEditOpen(false);
+            reload();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error al actualizar');
         }
     };
 
@@ -123,9 +149,14 @@ export default function Productos() {
                                         <TableCell sx={{ fontWeight: 500 }}>${p.precio}</TableCell>
                                         <TableCell>{p.stock}</TableCell>
                                         <TableCell align="center">
-                                            <Tooltip title="Eliminar">
-                                                <IconButton color="error" onClick={() => handleDelete(p.id)}><DeleteIcon /></IconButton>
-                                            </Tooltip>
+                                            <Stack direction="row" spacing={0.5} justifyContent="center">
+                                                <Tooltip title="Editar">
+                                                    <IconButton color="primary" onClick={() => openEdit(p)}><EditIcon /></IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Eliminar">
+                                                    <IconButton color="error" onClick={() => handleDelete(p.id)}><DeleteIcon /></IconButton>
+                                                </Tooltip>
+                                            </Stack>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -134,6 +165,20 @@ export default function Productos() {
                     </TableContainer>
                 )}
             </Paper>
+
+            <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Editar Producto</DialogTitle>
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
+                    <TextField label="Nombre" value={editForm.nombre} onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })} fullWidth size="small" />
+                    <TextField label="Descripción" value={editForm.descripcion} onChange={(e) => setEditForm({ ...editForm, descripcion: e.target.value })} fullWidth size="small" multiline rows={2} />
+                    <TextField label="Precio" type="number" value={editForm.precio} onChange={(e) => setEditForm({ ...editForm, precio: e.target.value })} fullWidth size="small"
+                        slotProps={{ input: { startAdornment: <InputAdornment position="start">$</InputAdornment> } }} />
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={() => setEditOpen(false)} sx={{ borderRadius: 3 }}>Cancelar</Button>
+                    <Button variant="contained" onClick={handleEdit} sx={{ borderRadius: 3 }}>Guardar</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

@@ -8,6 +8,8 @@ public interface ProductoGateway {
 
     Producto buscarProducto(String id);
 
+    Producto actualizarProducto(String id, Producto producto);
+
     void eliminarProducto(String id);
 
     List<Producto> listarProductos();

@@ -44,6 +44,22 @@ public class InventarioDataGatewayImpl implements InventarioGateway {
     }
 
     @Override
+    public Inventario actualizar(String productoId, Inventario inventario) {
+        return repository.findByProductoId(productoId)
+                .map(existente -> {
+                    if (inventario.getNombreProducto() != null) {
+                        existente.setNombreProducto(inventario.getNombreProducto());
+                    }
+                    if (inventario.getStockMinimo() != null) {
+                        existente.setStockMinimo(inventario.getStockMinimo());
+                    }
+                    existente.setAlertaStockBajo(existente.getStockActual() <= existente.getStockMinimo());
+                    return mapper.toDomain(repository.save(existente));
+                })
+                .orElse(null);
+    }
+
+    @Override
     @Transactional
     public void eliminar(String productoId) {
         repository.deleteByProductoId(productoId);

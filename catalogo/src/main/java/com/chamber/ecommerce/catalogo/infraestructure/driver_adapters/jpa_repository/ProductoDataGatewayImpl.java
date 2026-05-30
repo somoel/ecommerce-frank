@@ -33,6 +33,25 @@ public class ProductoDataGatewayImpl implements ProductoGateway {
     }
 
     @Override
+    public Producto actualizarProducto(String id, Producto producto) {
+        ProductoData existente = repository.findById(id).orElse(null);
+        if (existente == null) {
+            return null;
+        }
+        if (producto.getNombre() != null) {
+            existente.setNombre(producto.getNombre());
+        }
+        if (producto.getDescripcion() != null) {
+            existente.setDescripcion(producto.getDescripcion());
+        }
+        if (producto.getPrecio() != null) {
+            existente.setPrecio(producto.getPrecio());
+        }
+        ProductoData guardado = repository.save(existente);
+        return productoMapper.toProducto(guardado);
+    }
+
+    @Override
     public void eliminarProducto(String id) {
         repository.deleteById(id);
     }

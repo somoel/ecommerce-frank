@@ -35,6 +35,23 @@ public class ProductoUseCase {
         }
     }
 
+    public Producto actualizarProducto(String id, Producto producto) {
+        Producto existente = productoGateway.buscarProducto(id);
+        if (existente == null) {
+            throw new IllegalArgumentException("Producto no encontrado con id: " + id);
+        }
+        if (producto.getNombre() != null) {
+            existente.setNombre(producto.getNombre());
+        }
+        if (producto.getDescripcion() != null) {
+            existente.setDescripcion(producto.getDescripcion());
+        }
+        if (producto.getPrecio() != null) {
+            existente.setPrecio(producto.getPrecio());
+        }
+        return productoGateway.guardarProducto(existente);
+    }
+
     public void eliminarProducto(String id) {
         try {
             productoGateway.eliminarProducto(id);
