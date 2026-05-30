@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+    Box, Card, CardContent, TextField, Button, Typography, Alert, Link, InputAdornment, CircularProgress,
+} from '@mui/material';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import LoginIcon from '@mui/icons-material/Login';
 import { useAuth } from '../context/useAuth';
 import { login } from '../api/auth';
 
@@ -27,25 +33,43 @@ export default function Login() {
     };
 
     return (
-        <div className="form-page">
-            <h2>Login</h2>
-            {error && <p className="error-text">{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div className="form-field">
-                    <input type="email" placeholder="Email" value={email}
-                        onChange={(e) => setEmail(e.target.value)} required className="form-input" />
-                </div>
-                <div className="form-field">
-                    <input type="password" placeholder="Password" value={password}
-                        onChange={(e) => setPassword(e.target.value)} required className="form-input" />
-                </div>
-                <button type="submit" className="form-button" disabled={loading}>
-                    {loading ? 'Ingresando...' : 'Ingresar'}
-                </button>
-            </form>
-            <p className="form-footer">
-                <Link to="/register">Crear cuenta</Link>
-            </p>
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+            <Card sx={{ maxWidth: 440, width: '100%', mx: 2 }}>
+                <CardContent sx={{ p: 4 }}>
+                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <LoginIcon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                        <Typography variant="h5" fontWeight={600}>Bienvenido</Typography>
+                        <Typography variant="body2" color="text.secondary">Ingresa a tu cuenta</Typography>
+                    </Box>
+
+                    {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 3 }}>{error}</Alert>}
+
+                    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField
+                            fullWidth label="Email" type="email" value={email}
+                            onChange={(e) => setEmail(e.target.value)} required
+                            slotProps={{ input: { startAdornment: <InputAdornment position="start"><EmailIcon fontSize="small" /></InputAdornment> } }}
+                        />
+                        <TextField
+                            fullWidth label="Password" type="password" value={password}
+                            onChange={(e) => setPassword(e.target.value)} required
+                            slotProps={{ input: { startAdornment: <InputAdornment position="start"><LockIcon fontSize="small" /></InputAdornment> } }}
+                        />
+                        <Button type="submit" variant="contained" size="large" disabled={loading}
+                            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                            sx={{ mt: 1, py: 1.5, borderRadius: 3 }}>
+                            {loading ? 'Ingresando...' : 'Ingresar'}
+                        </Button>
+                    </Box>
+
+                    <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+                        ¿No tienes cuenta?{' '}
+                        <Link component={RouterLink} to="/register" fontWeight={600}>
+                            Regístrate
+                        </Link>
+                    </Typography>
+                </CardContent>
+            </Card>
+        </Box>
     );
 }

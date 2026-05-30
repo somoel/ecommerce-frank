@@ -1,36 +1,19 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import CircularLoading from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import theme from './theme';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/useAuth';
+import Layout from './components/Layout';
 
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Productos = lazy(() => import('./pages/Productos'));
 const Inventario = lazy(() => import('./pages/Inventario'));
 const Ordenes = lazy(() => import('./pages/Ordenes'));
-
-function Navbar() {
-    const { isAuthenticated, logout } = useAuth();
-
-    return (
-        <nav className="navbar">
-            <Link to="/" className="navbar-brand">E-Commerce</Link>
-            {isAuthenticated ? (
-                <>
-                    <Link to="/productos" className="navbar-link">Productos</Link>
-                    <Link to="/inventario" className="navbar-link">Inventario</Link>
-                    <Link to="/ordenes" className="navbar-link">Órdenes</Link>
-                    <button onClick={logout} className="navbar-logout">Salir</button>
-                </>
-            ) : (
-                <>
-                    <Link to="/login" className="navbar-link navbar-link-right">Login</Link>
-                    <Link to="/register" className="navbar-link">Registrar</Link>
-                </>
-            )}
-        </nav>
-    );
-}
 
 function ProtectedRoute({ children }) {
     const { isAuthenticated } = useAuth();
@@ -39,7 +22,11 @@ function ProtectedRoute({ children }) {
 }
 
 function Loading() {
-    return <div className="loading">Cargando...</div>;
+    return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+            <CircularLoading size={48} />
+        </Box>
+    );
 }
 
 function AppRoutes() {
@@ -59,11 +46,15 @@ function AppRoutes() {
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <AuthProvider>
-                <Navbar />
-                <AppRoutes />
-            </AuthProvider>
-        </BrowserRouter>
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+                <AuthProvider>
+                    <Layout>
+                        <AppRoutes />
+                    </Layout>
+                </AuthProvider>
+            </BrowserRouter>
+        </ThemeProvider>
     );
 }
