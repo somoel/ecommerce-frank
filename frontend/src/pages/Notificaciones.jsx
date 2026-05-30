@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Chip, CircularProgress, FormControl, InputLabel, Select, MenuItem, Stack,
@@ -23,8 +23,10 @@ const tipoLabels = {
 };
 
 export default function Notificaciones() {
-    const { notifications, loading } = useNotifications();
+    const { notifications, loading, refreshNotifications } = useNotifications();
     const [filterTipo, setFilterTipo] = useState('TODAS');
+
+    useEffect(() => { refreshNotifications(); }, [refreshNotifications]);
 
     const filtered = filterTipo === 'TODAS'
         ? notifications

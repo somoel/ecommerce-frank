@@ -28,14 +28,10 @@ const notificacionEstado = {
     CANCELADA: { tipo: 'ORDEN_CANCELADA', asunto: 'Orden cancelada', mensaje: 'La orden ha sido cancelada.' },
 };
 
-const getUserEmail = () => {
-    try { return JSON.parse(localStorage.getItem('usuario'))?.email || ''; } catch { return ''; }
-};
+const NOTIFICATION_EMAIL = 'viasusrivera@gmail.com';
 
 const sendNotif = async (tipo, asunto, mensaje) => {
-    const email = getUserEmail();
-    if (!email) return;
-    try { await enviarNotificacion({ destinatarioEmail: email, tipo, asunto, mensaje }); } catch { /* fire-and-forget */ }
+    try { await enviarNotificacion({ destinatarioEmail: NOTIFICATION_EMAIL, tipo, asunto, mensaje }); } catch { /* fire-and-forget */ }
 };
 
 export default function Ordenes() {
