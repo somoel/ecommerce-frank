@@ -12,6 +12,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { crearOrden, getOrdenesByUsuario, updateEstado, deleteOrden } from '../api/ordenes';
+import { enviarNotificacion } from '../api/notificaciones';
+import { useNotifications } from '../context/useNotifications';
 
 const estadoColor = {
     PENDIENTE: 'warning',
@@ -20,12 +22,29 @@ const estadoColor = {
     CANCELADA: 'error',
 };
 
+const notificacionEstado = {
+    PAGADA: { tipo: 'ORDEN_PAGADA', asunto: 'Orden pagada', mensaje: 'La orden ha sido marcada como pagada.' },
+    ENVIADA: { tipo: 'ORDEN_ENVIADA', asunto: 'Orden enviada', mensaje: 'La orden ha sido enviada.' },
+    CANCELADA: { tipo: 'ORDEN_CANCELADA', asunto: 'Orden cancelada', mensaje: 'La orden ha sido cancelada.' },
+};
+
+const getUserEmail = () => {
+    try { return JSON.parse(localStorage.getItem('usuario'))?.email || ''; } catch { return ''; }
+};
+
+const sendNotif = async (tipo, asunto, mensaje) => {
+    const email = getUserEmail();
+    if (!email) return;
+    try { await enviarNotificacion({ destinatarioEmail: email, tipo, asunto, mensaje }); } catch { /* fire-and-forget */ }
+};
+
 export default function Ordenes() {
     const [ordenes, setOrdenes] = useState([]);
     const [cedula, setCedula] = useState('');
     const [form, setForm] = useState({ cedulaUsuario: '', items: [{ productoId: '', cantidad: '', precioUnitario: '' }] });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const { refreshNotifications } = useNotifications();
 
     const loadByCedula = useCallback(async () => {
         if (!cedula) return;
@@ -51,20 +70,25 @@ export default function Ordenes() {
             }));
             await crearOrden({ cedulaUsuario: form.cedulaUsuario, items });
             setForm({ cedulaUsuario: '', items: [{ productoId: '', cantidad: '', precioUnitario: '' }] });
+            sendNotif('ORDEN_CREADA', 'Orden creada', 'Se ha creado una nueva orden.');
             if (cedula) loadByCedula();
+            refreshNotifications();
         } catch (err) {
             setError(err.response?.data?.message || 'Error al crear orden');
         }
-    }, [form, cedula, loadByCedula]);
+    }, [form, cedula, loadByCedula, refreshNotifications]);
 
     const handleUpdateEstado = useCallback(async (id, nuevoEstado) => {
         try {
             await updateEstado(id, nuevoEstado);
+            const cfg = notificacionEstado[nuevoEstado];
+            if (cfg) sendNotif(cfg.tipo, cfg.asunto, cfg.mensaje);
             loadByCedula();
+            refreshNotifications();
         } catch (err) {
             setError(err.response?.data?.message || 'Error al actualizar');
         }
-    }, [loadByCedula]);
+    }, [loadByCedula, refreshNotifications]);
 
     const handleDelete = useCallback(async (id) => {
         try {

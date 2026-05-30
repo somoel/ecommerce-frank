@@ -1,26 +1,30 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-    AppBar, Toolbar, Typography, Button, Box, Container, IconButton, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, useMediaQuery, useTheme,
+    AppBar, Toolbar, Typography, Button, Box, Container, IconButton, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, useMediaQuery, useTheme, Badge,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import { useAuth } from '../context/useAuth';
+import { useNotifications } from '../context/useNotifications';
 
 const navItems = [
     { label: 'Productos', path: '/productos', icon: <StorefrontIcon /> },
     { label: 'Inventario', path: '/inventario', icon: <Inventory2Icon /> },
     { label: 'Órdenes', path: '/ordenes', icon: <ReceiptLongIcon /> },
+    { label: 'Notificaciones', path: '/notificaciones', icon: <NotificationsIcon /> },
 ];
 
 export default function Layout({ children }) {
     const { isAuthenticated, logout } = useAuth();
+    const { notificationCount } = useNotifications();
     const navigate = useNavigate();
     const location = useLocation();
     const theme = useTheme();
@@ -90,6 +94,13 @@ export default function Layout({ children }) {
                         </Box>
                     )}
                     <Box sx={{ flexGrow: 1 }} />
+                    {isAuthenticated && (
+                        <IconButton onClick={() => navigate('/notificaciones')} sx={{ color: location.pathname === '/notificaciones' ? 'primary.main' : 'text.secondary', mr: 1 }}>
+                            <Badge badgeContent={notificationCount} color="error" max={99}>
+                                <NotificationsIcon />
+                            </Badge>
+                        </IconButton>
+                    )}
                     {isAuthenticated ? (
                         <Button startIcon={<LogoutIcon />} onClick={handleLogout} color="error" variant="outlined" size="small" sx={{ borderRadius: 3 }}>
                             Salir

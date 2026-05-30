@@ -11,6 +11,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import NumbersIcon from '@mui/icons-material/Numbers';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { register } from '../api/auth';
+import { enviarNotificacion } from '../api/notificaciones';
 
 const fields = [
     { name: 'cedula', label: 'Cédula', icon: <BadgeIcon fontSize="small" />, type: 'text' },
@@ -35,6 +36,12 @@ export default function Register() {
         setLoading(true);
         try {
             await register(form);
+            enviarNotificacion({
+                destinatarioEmail: form.email,
+                tipo: 'BIENVENIDA',
+                asunto: 'Bienvenido a E-Commerce',
+                mensaje: `Hola ${form.nombre}, tu cuenta ha sido creada exitosamente.`,
+            }).catch(() => { /* fire-and-forget */ });
             navigate('/login');
         } catch (err) {
             setError(err.response?.data?.message || 'Error al registrar');
