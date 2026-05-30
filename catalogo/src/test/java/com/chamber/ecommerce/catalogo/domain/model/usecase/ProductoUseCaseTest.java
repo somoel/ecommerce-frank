@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -194,6 +196,11 @@ class ProductoUseCaseTest {
                 throw new RuntimeException("Producto no encontrado");
             }
             return productoPorId;
+        }
+
+        @Override
+        public List<Producto> listarProductos() {
+            return List.of();
         }
 
         @Override
