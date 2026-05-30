@@ -1,16 +1,6 @@
-import axios from 'axios';
+import { createClient } from './client';
 
-const API_URL = import.meta.env.VITE_API_AUTH_URL || 'http://localhost:6767';
-
-const api = axios.create({ baseURL: API_URL });
-
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+const api = createClient(import.meta.env.VITE_API_AUTH_URL || 'http://localhost:6767');
 
 export const login = (email, password) => api.post('/api/ecommerce/usuario/login', { email, password });
 export const register = (usuario) => api.post('/api/ecommerce/usuario/save', usuario);

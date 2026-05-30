@@ -1,16 +1,6 @@
-import axios from 'axios';
+import { createClient } from './client';
 
-const API_URL = import.meta.env.VITE_API_INVENTARIO_URL || 'http://localhost:6771';
-
-const api = axios.create({ baseURL: API_URL });
-
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+const api = createClient(import.meta.env.VITE_API_INVENTARIO_URL || 'http://localhost:6771');
 
 export const registrarInventario = (inventario) => api.post('/api/ecommerce/inventario/registrar', inventario);
 export const getInventario = (productoId) => api.get(`/api/ecommerce/inventario/${productoId}`);

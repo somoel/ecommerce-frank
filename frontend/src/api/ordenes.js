@@ -1,16 +1,6 @@
-import axios from 'axios';
+import { createClient } from './client';
 
-const API_URL = import.meta.env.VITE_API_ORDENES_URL || 'http://localhost:6769';
-
-const api = axios.create({ baseURL: API_URL });
-
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+const api = createClient(import.meta.env.VITE_API_ORDENES_URL || 'http://localhost:6769');
 
 export const crearOrden = (orden) => api.post('/api/ecommerce/orden/crear', orden);
 export const getOrden = (id) => api.get(`/api/ecommerce/orden/${id}`);

@@ -1,54 +1,69 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Productos from './pages/Productos';
-import Inventario from './pages/Inventario';
-import Ordenes from './pages/Ordenes';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
+
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Productos = lazy(() => import('./pages/Productos'));
+const Inventario = lazy(() => import('./pages/Inventario'));
+const Ordenes = lazy(() => import('./pages/Ordenes'));
 
 function Navbar() {
-    const navigate = useNavigate();
-    const token = localStorage.getItem('token');
-
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
-        navigate('/login');
-    };
+    const { isAuthenticated, logout } = useAuth();
 
     return (
-        <nav style={{ display: 'flex', gap: 16, padding: '12px 20px', background: '#1a1a2e', color: '#fff', alignItems: 'center' }}>
-            <span style={{ fontWeight: 'bold', fontSize: 18 }}>E-Commerce</span>
-            {token ? (
+        <nav className="navbar">
+            <Link to="/" className="navbar-brand">E-Commerce</Link>
+            {isAuthenticated ? (
                 <>
-                    <Link to="/productos" style={{ color: '#fff', textDecoration: 'none' }}>Productos</Link>
-                    <Link to="/inventario" style={{ color: '#fff', textDecoration: 'none' }}>Inventario</Link>
-                    <Link to="/ordenes" style={{ color: '#fff', textDecoration: 'none' }}>Órdenes</Link>
-                    <button onClick={logout} style={{ marginLeft: 'auto', padding: '6px 12px', cursor: 'pointer' }}>Salir</button>
+                    <Link to="/productos" className="navbar-link">Productos</Link>
+                    <Link to="/inventario" className="navbar-link">Inventario</Link>
+                    <Link to="/ordenes" className="navbar-link">Órdenes</Link>
+                    <button onClick={logout} className="navbar-logout">Salir</button>
                 </>
             ) : (
                 <>
-                    <Link to="/login" style={{ color: '#fff', textDecoration: 'none', marginLeft: 'auto' }}>Login</Link>
-                    <Link to="/register" style={{ color: '#fff', textDecoration: 'none' }}>Registrar</Link>
+                    <Link to="/login" className="navbar-link navbar-link-right">Login</Link>
+                    <Link to="/register" className="navbar-link">Registrar</Link>
                 </>
             )}
         </nav>
     );
 }
 
-function App() {
+function ProtectedRoute({ children }) {
+    const { isAuthenticated } = useAuth();
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
+    return children;
+}
+
+function Loading() {
+    return <div className="loading">Cargando...</div>;
+}
+
+function AppRoutes() {
     return (
-        <BrowserRouter>
-            <Navbar />
+        <Suspense fallback={<Loading />}>
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/productos" element={<Productos />} />
-                <Route path="/inventario" element={<Inventario />} />
-                <Route path="/ordenes" element={<Ordenes />} />
-                <Route path="*" element={<Login />} />
+                <Route path="/productos" element={<ProtectedRoute><Productos /></ProtectedRoute>} />
+                <Route path="/inventario" element={<ProtectedRoute><Inventario /></ProtectedRoute>} />
+                <Route path="/ordenes" element={<ProtectedRoute><Ordenes /></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
-        </BrowserRouter>
+        </Suspense>
     );
 }
 
-export default App;
+export default function App() {
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <Navbar />
+                <AppRoutes />
+            </AuthProvider>
+        </BrowserRouter>
+    );
+}
