@@ -38,15 +38,18 @@ public class UsuarioUseCase {
         return usuario;
     }
 
-    public boolean login(String email, String password) {
+    public Usuario login(String email, String password) {
         if (email == null || password == null || email.isBlank() || password.isBlank()) {
-            return false;
+            return null;
         }
         Usuario usuario = usuarioGateway.buscarPorEmail(email);
         if (usuario == null || usuario.getPassword() == null) {
-            return false;
+            return null;
         }
-        return securityGateway.matches(password, usuario.getPassword());
+        if (securityGateway.matches(password, usuario.getPassword())) {
+            return usuario;
+        }
+        return null;
     }
 
     public void eliminarUsuario(String cedula) {

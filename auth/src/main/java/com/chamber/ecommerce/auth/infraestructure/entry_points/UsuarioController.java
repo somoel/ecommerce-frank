@@ -1,9 +1,11 @@
 package com.chamber.ecommerce.auth.infraestructure.entry_points;
 
 import com.chamber.ecommerce.auth.domain.model.Usuario;
+import com.chamber.ecommerce.auth.domain.model.gateway.TokenGateway;
 import com.chamber.ecommerce.auth.domain.model.usecase.UsuarioUseCase;
 import com.chamber.ecommerce.auth.infraestructure.driver_adapters.jpa_repository.UsuarioData;
 import com.chamber.ecommerce.auth.infraestructure.entry_points.dto.LoginRequest;
+import com.chamber.ecommerce.auth.infraestructure.entry_points.dto.LoginResponse;
 import com.chamber.ecommerce.auth.infraestructure.mapper.UsuarioMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class UsuarioController {
     private final UsuarioUseCase usuarioUseCase;
     private final UsuarioMapper usuarioMapper;
+    private final TokenGateway tokenGateway;
 
     @PostMapping("/save")
     public ResponseEntity<Usuario> saveUsuario(@RequestBody UsuarioData usuarioData) {
@@ -31,10 +34,12 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-        boolean loginExitoso = usuarioUseCase.login(loginRequest.getEmail(), loginRequest.getPassword());
-        if (loginExitoso) {
-            return new ResponseEntity<>("Login exitoso", HttpStatus.OK);
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        Usuario usuario = usuarioUseCase.login(loginRequest.getEmail(), loginRequest.getPassword());
+        if (usuario != null) {
+            String token = tokenGateway.generateToken(usuario);
+            LoginResponse response = new LoginResponse(token, usuario.getEmail(), usuario.getCedula(), usuario.getRol());
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         return new ResponseEntity<>("Credenciales invalidas", HttpStatus.UNAUTHORIZED);
