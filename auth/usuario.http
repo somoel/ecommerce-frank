@@ -1,0 +1,13 @@
+### Guardar usuario
+POST http://localhost:6767/api/ecommerce/usuario/save
+Content-Type: application/json
+
+{
+  "cedula": "12345678901",
+  "nombre": "Samuel Perez",
+  "telefono": "3001234567",
+  "email": "samuel@example.com",
+  "password": "ClaveSegura123",
+  "edad": 28,
+  "rol": "CLIENTE"
+}

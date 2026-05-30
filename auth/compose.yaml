@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: ecommerce-frank-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecommerce_frank
+      POSTGRES_USER: frank
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - ${USERPROFILE}/postgres/ecommerce-frank:/var/lib/postgresql
