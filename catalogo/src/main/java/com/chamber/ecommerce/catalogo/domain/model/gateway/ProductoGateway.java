@@ -1,6 +1,7 @@
 package com.chamber.ecommerce.catalogo.domain.model.gateway;
 
 import com.chamber.ecommerce.catalogo.domain.model.Producto;
+import java.util.List;
 
 public interface ProductoGateway {
     Producto guardarProducto(Producto producto);
@@ -8,4 +9,6 @@ public interface ProductoGateway {
     Producto buscarProducto(String id);
 
     void eliminarProducto(String id);
+
+    List<Producto> listarProductos();
 }

@@ -3,5 +3,6 @@ import { createClient } from './client';
 const api = createClient(import.meta.env.VITE_API_CATALOGO_URL || 'http://localhost:8080');
 
 export const createProducto = (producto) => api.post('/api/ecommerce/producto/save', producto);
+export const getAllProductos = () => api.get('/api/ecommerce/producto/all');
 export const getProducto = (id) => api.get(`/api/ecommerce/producto/${id}`);
 export const deleteProducto = (id) => api.delete(`/api/ecommerce/producto/${id}`);

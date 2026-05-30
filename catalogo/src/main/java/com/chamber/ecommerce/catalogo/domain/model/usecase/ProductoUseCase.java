@@ -2,11 +2,16 @@ package com.chamber.ecommerce.catalogo.domain.model.usecase;
 
 import com.chamber.ecommerce.catalogo.domain.model.Producto;
 import com.chamber.ecommerce.catalogo.domain.model.gateway.ProductoGateway;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ProductoUseCase {
     private final ProductoGateway productoGateway;
+
+    public List<Producto> listarProductos() {
+        return productoGateway.listarProductos();
+    }
 
     public Producto guardarProducto(Producto producto) {
         if (producto.getNombre() == null || producto.getNombre().isBlank()) {

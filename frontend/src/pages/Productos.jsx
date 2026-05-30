@@ -7,7 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import { createProducto, getProducto, deleteProducto } from '../api/catalogo';
+import { createProducto, getAllProductos, getProducto, deleteProducto } from '../api/catalogo';
 
 function useProductos(searchId) {
     const [productos, setProductos] = useState([]);
@@ -16,10 +16,11 @@ function useProductos(searchId) {
 
     useEffect(() => {
         let cancelled = false;
-        getProducto(searchId || 'all')
-            .then((res) => {
-                if (!cancelled) setProductos(Array.isArray(res.data) ? res.data : [res.data]);
-            })
+        const fetchProductos = searchId
+            ? getProducto(searchId).then((res) => Array.isArray(res.data) ? res.data : [res.data])
+            : getAllProductos().then((res) => res.data);
+        fetchProductos
+            .then((data) => { if (!cancelled) setProductos(data); })
             .catch(() => { if (!cancelled) setProductos([]); })
             .finally(() => { if (!cancelled) setLoading(false); });
         return () => { cancelled = true; };
@@ -35,8 +36,13 @@ export default function Productos() {
 
     const reload = async () => {
         try {
-            const res = await getProducto(searchId || 'all');
-            setProductos(Array.isArray(res.data) ? res.data : [res.data]);
+            if (searchId) {
+                const res = await getProducto(searchId);
+                setProductos(Array.isArray(res.data) ? res.data : [res.data]);
+            } else {
+                const res = await getAllProductos();
+                setProductos(res.data);
+            }
         } catch {
             setProductos([]);
         }

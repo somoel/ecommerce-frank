@@ -3,6 +3,7 @@ package com.chamber.ecommerce.catalogo.infraestructure.driver_adapters.jpa_repos
 import com.chamber.ecommerce.catalogo.domain.model.Producto;
 import com.chamber.ecommerce.catalogo.domain.model.gateway.ProductoGateway;
 import com.chamber.ecommerce.catalogo.infraestructure.mapper.ProductoMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +12,13 @@ import org.springframework.stereotype.Repository;
 public class ProductoDataGatewayImpl implements ProductoGateway {
     private final ProductoDataJpaRepository repository;
     private final ProductoMapper productoMapper;
+
+    @Override
+    public List<Producto> listarProductos() {
+        return repository.findAll().stream()
+                .map(productoMapper::toProducto)
+                .toList();
+    }
 
     @Override
     public Producto guardarProducto(Producto producto) {

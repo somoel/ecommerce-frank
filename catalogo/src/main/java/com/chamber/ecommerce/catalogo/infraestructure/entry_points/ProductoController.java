@@ -4,6 +4,7 @@ import com.chamber.ecommerce.catalogo.domain.model.Producto;
 import com.chamber.ecommerce.catalogo.domain.model.usecase.ProductoUseCase;
 import com.chamber.ecommerce.catalogo.infraestructure.entry_points.dto.ProductoRequest;
 import com.chamber.ecommerce.catalogo.infraestructure.mapper.ProductoMapper;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductoController {
     private final ProductoUseCase productoUseCase;
     private final ProductoMapper productoMapper;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Producto>> listarProductos() {
+        return new ResponseEntity<>(productoUseCase.listarProductos(), HttpStatus.OK);
+    }
 
     @PostMapping("/save")
     public ResponseEntity<?> saveProducto(@RequestBody ProductoRequest productoRequest) {
