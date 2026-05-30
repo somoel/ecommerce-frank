@@ -207,5 +207,15 @@ class ProductoUseCaseTest {
         public void eliminarProducto(String id) {
             idEliminado = id;
         }
+
+        @Override
+        public Producto actualizarProducto(String id, Producto producto) {
+            Producto existente = buscarProducto(id);
+            if (existente == null) return null;
+            if (producto.getNombre() != null) existente.setNombre(producto.getNombre());
+            if (producto.getDescripcion() != null) existente.setDescripcion(producto.getDescripcion());
+            if (producto.getPrecio() != null) existente.setPrecio(producto.getPrecio());
+            return existente;
+        }
     }
 }
